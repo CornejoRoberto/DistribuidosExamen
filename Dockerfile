@@ -1,18 +1,10 @@
 # Dockerfile
-FROM node:16
+FROM nginx:latest
 
-# Crear directorio de la aplicación
-WORKDIR /usr/src/app
+# Copiar tu archivo index.html al directorio predeterminado de Nginx
+COPY index.html /usr/share/nginx/html/index.html
 
-# Copiar archivos al contenedor
-COPY package*.json ./
-COPY index.html .
+# Exponer el puerto 80 para el servidor web
+EXPOSE 80
 
-# Instalar dependencias
-RUN npm install
-
-# Exponer el puerto de la aplicación
-EXPOSE 3000
-
-# Comando para iniciar la aplicación
-CMD ["node", "index.js"]
+# No se requiere CMD porque Nginx tiene un comando predeterminado para iniciar el servidor

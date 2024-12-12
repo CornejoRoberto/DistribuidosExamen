@@ -2,19 +2,17 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'holaa-mundo-node'
+        DOCKER_IMAGE = 'holaa-mundo-html'
         DOCKER_TAG = 'latest'
-        CONTAINER_NAME = 'holaa-mundo-node'
-        PORT = '3000'
+        CONTAINER_NAME = 'holaa-mundo-html'
+        PORT = '80'  // El puerto que expone Nginx
     }
 
     tools {
-        nodejs "Node18"  // Configura una instalación de Node.js en Jenkins
         dockerTool 'dockerTool'
     }
 
     triggers {
-        // Se ejecuta automáticamente cuando hay un push en la rama 'main' o 'master'
         pollSCM('*/5 * * * *')  // Revisa los cambios cada 5 segundos
     }
 
@@ -23,7 +21,6 @@ pipeline {
         stage('Verificar cambios en la rama') {
             steps {
                 script {
-                    // Se verifica si el commit ha sido en la rama main o master
                     def branchName = env.GIT_BRANCH
                     if (!(branchName == 'origin/main' || branchName == 'origin/master')) {
                         echo "No hay cambios en la rama 'main' o 'master'. Deteniendo el pipeline."
@@ -47,7 +44,6 @@ pipeline {
         stage('Ejecutar Contenedor Docker') {
             steps {
                 script {
-                    // Verificar si ya existe el contenedor
                     def containerExists = sh(script: "docker ps -q -f name=${CONTAINER_NAME}", returnStdout: true).trim()
                     if (containerExists) {
                         echo "Deteniendo y eliminando contenedor existente"
@@ -67,7 +63,6 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {
