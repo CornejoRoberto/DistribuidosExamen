@@ -1,0 +1,66 @@
+# MANUAL PARA CONFIGURAR JENKINS EN WINDOWS
+
+## PRE-REQUISITOS:
+1. Docker Desktop debe estar instalado y funcionando.
+   - Descárgalo de https://www.docker.com/products/docker-desktop/
+   - Asegúrate de habilitar WSL 2 si es necesario.
+
+2. Archivos necesarios:
+   - `jenkins_image.tar`: Imagen de Jenkins exportada.
+   - `jenkins_data.tar`: Volumen de datos exportado.
+
+---
+
+## PASOS PARA CONFIGURAR JENKINS:
+
+### 1. Importar la imagen de Jenkins
+1. Abre PowerShell.
+2. Importa la imagen de Jenkins:
+   docker load -i jenkins_image.tar
+3. Verifica que la imagen haya sido importada correctamente:
+   docker images
+
+---
+
+### 2. Restaurar el volumen `jenkins_data`
+1. Crea un volumen en Docker con el nombre `jenkins_data`:
+   docker volume create jenkins_data
+2. Restaura el contenido del volumen usando el archivo `jenkins_data.tar`:
+   docker run --rm -v jenkins_data:/data -v ${PWD}:/backup busybox tar xvf /backup/jenkins_data.tar -C /data
+
+---
+
+### 3. Iniciar el contenedor Jenkins
+1. Ejecuta el contenedor Jenkins con la configuración adecuada:
+   docker run -d --name jenkins `
+      -p 8080:8080 -p 50000:50000 `
+      -v jenkins_data:/var/jenkins_home `
+      jenkins/jenkins:lts
+2. Verifica que el contenedor esté en ejecución:
+   docker ps
+
+---
+
+### 4. Acceder a Jenkins
+1. Abre un navegador web y ve a:
+   http://localhost:8080
+2. Ingresa las credenciales para acceder:
+   - Usuario: admin
+   - Contraseña: Admin.2024
+
+---
+
+### 5. Verificación
+1. Asegúrate de que Jenkins muestre los pipelines y configuraciones correctamente.
+2. Ejecuta un pipeline de prueba para confirmar que todo funciona.
+
+---
+
+### NOTAS:
+- Si necesitas acceder al socket Docker en Windows, verifica si es posible montarlo usando:
+  docker run -d --name jenkins `
+     -p 8080:8080 -p 50000:50000 `
+     -v jenkins_data:/var/jenkins_home `
+     -v //var/run/docker.sock:/var/run/docker.sock `
+     jenkins/jenkins:lts
+- Si el socket no está disponible, considera usar agentes Docker o revisa la documentación de Docker Desktop para más información.
